@@ -79,11 +79,7 @@ binomLogCoefs n =
   in
     (List.scanl (+) 0 logDiffs)
 
-type alias N = Int
-
-type alias Xs = List (Int)
-
-newXs : Int -> Xs
+newXs : Int -> List (Int)
 newXs n =
     List.range 0 n
 
@@ -123,10 +119,9 @@ cumultSumr l = List.foldr addAndAppend [] l
 type alias BinomModel = {xs : List(Int)
                         , ps : List(Float)
                         , psDict : Dict.Dict Int Float
-                        , lowerPs : List(Float)
                         , lowerPsDict : Dict.Dict Int Float
-                        , upperPs : List(Float)
                         , upperPsDict : Dict.Dict Int Float
+                        , twoPsDict : Dict.Dict Int Float
                         , n : Int
                         , p : Float
                         , mean : Float
@@ -134,30 +129,6 @@ type alias BinomModel = {xs : List(Int)
                         , maxX : Int
                         }
 
-binomData : Int -> Float -> BinomModel
-binomData n p = 
-    let
-        xs = List.range 0 n
-        ps = newPs n p
-        psDict = Dict.fromList (List.map2 (,) xs ps)
-        lowerPs = cumultSuml ps
-        upperPs = cumultSumr ps
-        lowerDict = Dict.fromList (List.map2 (,) xs lowerPs)
-        upperDict = Dict.fromList (List.map2 (,) xs upperPs)
-        mean = meanBinom n p
-    in
-        BinomModel xs 
-                   ps 
-                   psDict
-                   lowerPs 
-                   lowerDict 
-                   upperPs 
-                   upperDict 
-                   n 
-                   p 
-                   mean 
-                   0 
-                   n
 
 
 binomDataRange : Int -> Float -> Int -> Int -> BinomModel
@@ -171,14 +142,22 @@ binomDataRange n p start stop =
         upperPs = (cumultSumr ps)
         lowerDict = Dict.fromList (List.map2 (,) xs lowerPs)
         upperDict = Dict.fromList (List.map2 (,) xs upperPs)
+        (lLim, uLim) = List.unzip (List.map (twoTailLimits mean) xs)
+        getTailProb = \dict x -> 
+            (case Dict.get x dict of 
+                Just p -> p 
+                Nothing -> 0)
+        leftTail = List.map (getTailProb lowerDict) lLim
+        rightTail = List.map (getTailProb upperDict) uLim
+        tailProbs = List.map2 (+) leftTail rightTail
+        twoDict = Dict.fromList (List.map2 (,) xs tailProbs)
     in
         BinomModel xs 
                    ps 
                    psDict
-                   lowerPs 
                    lowerDict 
-                   upperPs 
                    upperDict 
+                   twoDict
                    n 
                    p 
                    mean 
@@ -195,13 +174,6 @@ binomDataTrimmed n p =
     in
         binomDataRange n p minX maxX
 
-maxProb : BinomModel -> Float
-maxProb binom = 
-    case List.maximum binom.ps of
-        Just num -> num
-
-        Nothing -> 1
-
 
 filterCol : List(Bool) -> List(number) -> List(number)
 filterCol valToKeep vals =
@@ -212,49 +184,13 @@ filterCol valToKeep vals =
         List.map Tuple.second pairsToKeep
 
 
-filterProbs : Float -> BinomModel -> BinomModel
-filterProbs limit binom =
-    let
-        toKeep = List.map (\p -> p > limit) binom.ps
-        newXs = (filterCol toKeep binom.xs)
-        mean = meanBinom binom.n binom.p
-        minX = 
-            case List.minimum newXs of
-                Just x -> x
-                Nothing -> 0
-        maxX = 
-            case List.maximum newXs of
-                Just x -> x
-                Nothing -> binom.n
-        ps = filterCol toKeep binom.ps
-        psDict = Dict.fromList (List.map2 (,) newXs ps)
-        lowerPs = filterCol toKeep binom.lowerPs
-        upperPs = filterCol toKeep binom.upperPs
-        lowerDict = Dict.fromList (List.map2 (,) newXs lowerPs)
-        upperDict = Dict.fromList (List.map2 (,) newXs upperPs)
-
-    in
-        BinomModel newXs
-                   ps
-                   psDict
-                   lowerPs
-                   lowerDict
-                   upperPs
-                   upperDict
-                   binom.n
-                   binom.p
-                   mean
-                   minX
-                   maxX
-
-type Tail = Left | Right | Two
+type Tail = Left | Right | Two | None
 
 filterXs : (Int -> Bool) -> BinomModel -> BinomModel
 filterXs pred binom =
     let
         toKeep = List.map pred binom.xs
         newXs = (filterCol toKeep binom.xs)
-        mean = meanBinom binom.n binom.p
         minX = 
             case List.minimum newXs of
                 Just x -> x
@@ -263,41 +199,8 @@ filterXs pred binom =
             case List.maximum newXs of
                 Just x -> x
                 Nothing -> binom.n
-        ps = filterCol toKeep binom.ps
-        psDict = Dict.fromList (List.map2 (,) newXs ps)
-        lowerPs = filterCol toKeep binom.lowerPs
-        upperPs = filterCol toKeep binom.upperPs
-        lowerDict = Dict.fromList (List.map2 (,) newXs lowerPs)
-        upperDict = Dict.fromList (List.map2 (,) newXs upperPs)
     in
-        BinomModel newXs
-                   ps
-                   psDict
-                   lowerPs
-                   lowerDict
-                   upperPs
-                   upperDict
-                   binom.n
-                   binom.p
-                   mean
-                   minX
-                   maxX
-
-twoTailProb : BinomModel -> Int -> Float
-twoTailProb binom x =
-    let
-        mean = (toFloat binom.n)*binom.p
-        diff = (toFloat x) - mean
-        lower = if (diff <= 0) then x else (floor (mean - diff))
-        upper = if (diff <= 0) then (ceiling (mean + diff)) else x
-        lowerArea = pBinomOneTail .lowerPs lower binom
-        upperArea = pBinomOneTail .upperPs upper binom
-    in
-        if (diff == 0) then 1 else (lowerArea + upperArea)
-
-twoTailProbs : BinomModel -> List(Float)
-twoTailProbs binom = 
-    List.map (twoTailProb binom) binom.xs
+        binomDataRange binom.n binom.p minX maxX
 
 probX : Int -> BinomModel -> Float
 probX x binom = 
@@ -319,8 +222,14 @@ upperTail x binom =
         Nothing -> 
             if (x < binom.minX) then 1 else 0
 
-twoTailLimits : Int -> Float -> (Int, Int)
-twoTailLimits value mean =
+twoTail : BinomModel -> Int -> Float
+twoTail binom x = 
+    case (Dict.get x binom.twoPsDict) of
+        Just p -> Basics.min 1 p
+        Nothing -> 0
+
+twoTailLimits : Float -> Int -> (Int, Int)
+twoTailLimits mean value =
     let
         valueF = toFloat value
         diff = if (valueF <= mean) then mean - valueF else valueF - mean
@@ -331,89 +240,14 @@ twoTailLimits value mean =
     in
         (lower, upper)
 
-twoTail : BinomModel -> Int -> Float
-twoTail binom value =
-    let
-        valueF = toFloat value
-        nF = toFloat binom.n
-        mean = nF*binom.p
-        (lower, upper) = twoTailLimits value mean
-    in 
-        if ((mean - valueF) < 0.01) then 1 else (lowerTail lower binom) + (upperTail upper binom)
-
-pBinomOneTail selector x binom =
-    let
-        probX : (Int, Float) -> Float -> Float
-        probX tup acc = if Tuple.first tup == x then Tuple.second tup else acc
-        tailProbs = selector binom
-        pairs = List.map2 (,) binom.xs tailProbs
-    in
-        List.foldl probX 0 pairs
-
-
-pBinom : Tail -> Int -> BinomModel -> Float
-pBinom tail x binom =
-    case tail of
-        Left ->
-            pBinomOneTail .lowerPs x binom
-        Right ->
-            pBinomOneTail .upperPs x binom
-        Two ->
-            pBinomOneTail twoTailProbs x binom
-
-qBinom : Tail -> BinomModel -> Float -> Int
-qBinom  tail binom area =
-    let
-        xs = 
-            case tail of
-                Right -> List.reverse (.xs binom)
-                _ -> .xs binom
-        tailProbs =
-            case tail of
-                Left -> .lowerPs binom
-
-                Right -> List.reverse (.upperPs binom)
-
-                Two -> List.map (twoTail binom) binom.xs
-
-        tupHelp =  \tup acc-> if Tuple.second tup <=  area then Tuple.first tup else acc
-
-        pairs = List.map2 (,) xs tailProbs
-
-    in
-        List.foldl tupHelp 0 pairs
-
-binomToStringList : BinomModel -> String
-binomToStringList bData = 
-   (let 
-       header = (List.map Encode.string ["X", "P(X)", "P(X or lower)", "P(X or above)"])
-       xs = (List.map Encode.int bData.xs)
-       ps = (List.map Encode.float bData.ps)
-       lowerPs = (List.map Encode.float bData.lowerPs)
-       upperPs = (List.map Encode.float bData.upperPs)
-       rows = (header :: (List.map4 (\x p lp up -> [x, p, lp, up]) xs ps lowerPs upperPs))
-   in
-       Encode.encode 0 (Encode.list (List.map Encode.list rows))
-       )
-
-
 
 type alias Model =
   { n : Result String Int
   , p : Result String Float
-  , x : Result String Int
-  , mean : Float
+  , x : Maybe Int
+  , xMsg: Result String Int
   , tail : Tail
-  , lower : Result String Int
-  , lowerActual : Int
-  , upper : Result String Int
-  , upperActual : Int
-  , value : Result String Int
-  , valueActual : Int
-  , twoLeft : Int
-  , twoRight : Int
   , binom : Result String BinomModel
-  , probActual : Float
   , vegaSpec : Result String Spec
   }
 
@@ -423,20 +257,13 @@ model =
     let 
         n = (String.toInt "10")
         p = (String.toFloat "0.5")
-        x = (String.toInt "")
-        mean = 5
-        tail = Left
-        lower = (String.toInt "2")
-        lowerActual = 2
-        upper = (String.toInt "8")
-        value = (String.toInt "2")
-        twoLeft = 2
-        twoRight = 8
+        x = Nothing
+        xMsg = Err "Empty"
+        tail = None
         binom = Result.map2 binomDataTrimmed n p
-        probActual = lowerTail lowerActual (binomData 10 0.5)
-        vegaSpec = Result.map (spec tail lowerActual) binom
+        vegaSpec = Result.map (spec tail x) binom
     in
-        Model n p x mean tail lower lowerActual upper 8 value 2 twoLeft twoRight binom probActual vegaSpec
+        Model n p x xMsg tail binom vegaSpec
 
 makeCmd : Model -> Cmd Msg
 makeCmd model =
@@ -447,15 +274,6 @@ makeCmd model =
 
 init : (Model, Cmd Msg)
 init = (model, makeCmd model)
-
-
-encBar minX maxX =
-            encoding
-                << position X [ pName "X", pMType Quantitative, pScale [ scDomain (doNums [minX, maxX])]]
-                << position Y [ pName "P(X)", pAggregate Sum, pMType Quantitative ]
-                << tooltips [ [ tName "X", tMType Quantitative]
-                            , [ tName "P(X)", tMType Quantitative, tFormat ".3f"]
-                            ]
 
 removeTails : BinomModel -> BinomModel
 removeTails binom =
@@ -473,19 +291,24 @@ removeTails binom =
     in
         filterXs pred binom
 
-spec : Tail -> Int -> BinomModel -> Spec
+-- old
+spec : Tail -> Maybe Int -> BinomModel -> Spec
 spec tail limit fullBinom = 
     let
         mean = (toFloat fullBinom.n)*fullBinom.p
-        (lower, upper) = twoTailLimits limit mean
         expr = 
-            case tail of
-                Left ->  "datum.X <= " ++ (toString limit)
-                Right -> "datum.X >= " ++ (toString limit)
-                Two ->  
-                    if (mean == (toFloat limit)) then "true" 
-                    else"datum.X <= " ++ (toString lower) ++ " || " ++
-                         "datum.X >= " ++ (toString upper)
+            case (tail, limit) of
+                (_, Nothing) -> "false"
+                (None, _) -> "false"
+                (Left, Just limit) ->  "datum.X <= " ++ (toString limit)
+                (Right, Just limit) -> "datum.X >= " ++ (toString limit)
+                (Two, Just limit)->  
+                    let
+                        (lower, upper) = twoTailLimits mean limit 
+                    in
+                        if (mean == (toFloat limit)) then "true" 
+                        else"datum.X <= " ++ (toString lower) ++ " || " ++
+                             "datum.X >= " ++ (toString upper)
 
         binom = removeTails fullBinom
         d = dataFromColumns []
@@ -515,23 +338,21 @@ spec tail limit fullBinom =
 
 
     in
-    toVegaLite
-        [ VegaLite.width 600
-        , VegaLite.height 400
-        ,
-        d []
-        , layer [ asSpec [ bar [], encPMF []]
-                , asSpec  [ bar [], selectedEnc [], trans []]
-                ]
-        ]
-
+        toVegaLite
+            [ VegaLite.width 600
+            , VegaLite.height 400
+            ,
+            d []
+            , layer [ asSpec [ bar [], encPMF []]
+                    , asSpec  [ bar [], selectedEnc [], trans []]
+                    ]
+            ]
 
 -- UPDATE
 
 type Msg
   = ChangeN String 
   | ChangeP String 
-  | ChangeLimit String 
   | ChangeTail Tail
   | ChangeSearch String
 
@@ -542,10 +363,6 @@ update msg model =
         let
             new_model = model
                         |> updateTail tail
-                        |> updateLimit
-                        |> updateActual
-                        |> updateTwoTailLimits
-                        |> updateProb
                         |> updateSpec
         in
             (new_model, makeCmd new_model)
@@ -555,12 +372,7 @@ update msg model =
             new_model = model 
                         |> updateN txt
                         |> updateX ""
-                        |> updateMean
                         |> updateBinom
-                        |> updateLimit
-                        |> updateActual
-                        |> updateTwoTailLimits
-                        |> updateProb
                         |> updateSpec
         in
             (new_model, makeCmd new_model)
@@ -570,23 +382,7 @@ update msg model =
             new_model = model
                         |> updateP txt
                         |> updateX ""
-                        |> updateMean
                         |> updateBinom
-                        |> updateLimit
-                        |> updateActual
-                        |> updateTwoTailLimits
-                        |> updateProb
-                        |> updateSpec
-        in
-            (new_model, makeCmd new_model)
-
-    ChangeLimit txt ->
-        let
-            new_model = model 
-                        |> updateNewLimit txt model.n 
-                        |> updateActual
-                        |> updateTwoTailLimits
-                        |> updateProb
                         |> updateSpec
         in
             (new_model, makeCmd new_model)
@@ -595,38 +391,17 @@ update msg model =
         let
             new_model = model
                         |> updateX txt
+                        |> updateSpec
         in
-            (new_model, Cmd.none)
+            (new_model, makeCmd new_model)
 
 updateTail : Tail -> Model -> Model
 updateTail tail model =
         {model | tail = tail}
 
-
-
-maybeUpdateActual : Result String Int -> Int
-maybeUpdateActual value =
-        case value of
-            Ok val -> val
-            Err _ -> 0
-
-updateActual : Model -> Model
-updateActual model =
-            {model | lowerActual = maybeUpdateActual model.lower,
-                     upperActual = maybeUpdateActual model.upper,
-                     valueActual = maybeUpdateActual model.value}
-
-
 updateSpec : Model -> Model
-updateSpec model =
-    let
-        limit = 
-            case model.tail of
-                Left -> model.lowerActual
-                Right -> model.upperActual
-                Two -> model.valueActual
-    in
-        {model | vegaSpec = Result.map (spec model.tail limit) model.binom}
+updateSpec model = 
+    {model | vegaSpec = Result.map (spec model.tail model.x) model.binom}
 
 updateBinom : Model -> Model
 updateBinom model = 
@@ -643,51 +418,6 @@ updateVal convert validRange errorMsg txt =
                         Err _ ->
                             Err errorMsg
 
-updateCurrentTail : Model -> Result String Int -> Model
-updateCurrentTail model val =
-    case model.tail of
-        Left ->
-            {model | lower = val} 
-        Right ->
-            {model | upper = val} 
-        Two ->
-            {model | value = val} 
-
-updateLimit : Model -> Model
-updateLimit model =
-    let
-        tailProb =
-            case model.tail of
-                Two -> "0.025"
-                _ -> "0.05"
-        updateHelp = \tail -> Result.map2 (qBinom tail) model.binom (String.toFloat tailProb)
-    in
-        {model | lower = updateHelp Left,
-                 upper = updateHelp Right,
-                 value = updateHelp Two}
-
-
-updateNewLimit : String -> Result String Int -> Model -> Model
-updateNewLimit txt n model = 
-        case n of
-            Ok nVal -> 
-                let
-                    val = (updateVal String.toInt 
-                                             (\k -> (k >= 0) && (k <= nVal))
-                                             ((toString model.tail) ++ "- tail bound needs to be a whole number between 0 and n")
-                                             txt)
-                in
-                    updateCurrentTail model val 
-
-            Err _ -> model
-
-updateTwoTailLimits : Model -> Model
-updateTwoTailLimits model =
-    let
-        (lower, upper) = twoTailLimits model.valueActual model.mean
-    in
-        {model | twoLeft = lower, twoRight = upper}
-
 updateN : String -> Model -> Model
 updateN txt model = 
     let
@@ -700,10 +430,22 @@ updateN txt model =
 
 updateX : String -> Model -> Model
 updateX txt model =
-    case String.toInt txt of
-        Ok x -> {model | x = String.toInt txt}
-        Err _ ->
-            {model | x = Err "X needs to be in interger"}
+    case model.n of
+        Ok n ->
+            if (String.isEmpty txt) then 
+                {model | x = Nothing,
+                         xMsg = Err "Empty"}
+            else case String.toInt txt of
+                    Ok x -> 
+                        if (0 <= x && x<= n) then 
+                            {model | x = Just x,
+                                     xMsg = Ok x}
+                        else {model | x = Nothing,
+                                     xMsg = Err "x must satisfy 0 <= x <= n"}
+                    Err _ ->
+                        {model | x = Nothing,
+                                 xMsg = Err "X needs to be in integer"}
+        _ -> model
 
 updateInner : String -> String -> Result String Float
 updateInner name txt =  (updateVal String.toFloat 
@@ -713,28 +455,8 @@ updateInner name txt =  (updateVal String.toFloat
 updateP : String -> Model -> Model
 updateP txt model = {model | p = updateInner "p" txt}
 
-updateMean : Model -> Model
-updateMean model = 
-    case (model.n, model.p) of
-        (Ok n, Ok p) -> {model | mean = (toFloat n)*p}
-        _ -> model
-
-updateProb : Model -> Model
-updateProb model =
-    let
-        prob = 
-            case model.tail of
-                Left ->  Result.map (lowerTail model.lowerActual)  model.binom
-                Right -> Result.map (upperTail model.upperActual)  model.binom
-                Two ->   Result.map (\binom -> twoTail binom model.valueActual) model.binom
-    in
-        case prob of
-            Ok p -> {model | probActual = p}
-            Err _ -> model
-        
 
 -- SUBSCRIPTIONS
-
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
@@ -764,67 +486,14 @@ view model =
                                                           [ Button.primary, Button.onClick <| ChangeTail Two ]
                                                           [ Html.text "Two-tail" ]
                                                   ]
-                                          , inputTail model
-                                          , outputLimit model
+                                          , inputX model
+                                          , outputX model.xMsg
+                                          , br [] [] 
                                           , br [] [] 
                                           , h4 [] [Html.text "Probability"]
-                                          , probElement model
-                                          , br [] [] 
-                                          , h4 [] [Html.text "Search"]
-                                          , inputGroup "x" "" ChangeSearch "x = "
-                                          , displayXProbs model
+                                          , displayXProb model
                                           ]
 
-displayCoef n = display ("Binom " ++ (toString n))  
-                        (List.map round
-                          (List.map (\n -> 10^n)
-                            (List.map
-                              (binomLogCoef n) 
-                              (List.range 0 n))))
-
-displayRange n start stop = 
-    let
-        lbl = "Range from " ++ (toString start) ++ 
-              " to " ++ (toString stop) ++
-              " with n = " ++ (toString n)
-    in 
-        display lbl 
-            (List.map (round << (\n -> 10.0^n))
-                (binomLogCoefRange n start stop))
-
-displayProbs n p start stop = 
-    let
-        lbl = "Range from " ++ (toString start) ++ 
-              " to " ++ (toString stop) ++
-              " with n = " ++ (toString n)
-    in 
-        display lbl (probRange n p start stop)
-
-inputTail model =
-    let 
-        label = (toString model.tail) ++ "-tail"
-        txt =
-            case model.tail of
-                Left ->
-                    label ++ " upper bound"
-                Right ->
-                    label ++ " lower bound"
-                Two ->
-                    "Value"
-        default = 
-            case model.tail of
-                Left ->  toString model.lowerActual
-                Right -> toString model.upperActual
-                Two ->   toString model.valueActual
-    in
-        inputGroup label default ChangeLimit txt
-
-
-outputLimit model =
-    case model.tail of
-        Left -> outputVal model.lower
-        Right -> outputVal model.upper
-        Two -> outputVal model.value
 
 inputGroup id default onchange intext =
     InputGroup.config (InputGroup.number [ Input.id id
@@ -835,64 +504,43 @@ inputGroup id default onchange intext =
    |> InputGroup.predecessors [ InputGroup.span [] [ Html.text intext] ]
    |> InputGroup.view
 
-probString model = 
+inputX model =
+    case model.x of
+        Just x -> inputGroup "x" (toString x) ChangeSearch "x = "
+        Nothing -> inputGroup "x" "" ChangeSearch "x = "
+
+probXString : Tail -> Maybe Int -> BinomModel -> String
+probXString  tail x binom =
+    case x of
+        Just val ->
+            let
+                xStr = toString val
+                prob =  roundFloat 3 (case tail of
+                                          Left -> lowerTail val binom
+                                          Right -> upperTail val binom
+                                          Two -> twoTail binom val
+                                          None -> 0)
+                probStr = toString prob
+                (left, right) = twoTailLimits binom.mean val
+                (leftStr, rightStr) = (toString left, toString right)
+            in
+                case tail of
+                    Left ->  "P(X \\le " ++ xStr ++ ") = " ++ probStr
+                    Right -> "P(X \\ge " ++ xStr ++ ") = " ++ probStr
+                    Two ->   "P(X \\le " ++ leftStr ++ "\\text{ or }X \\ge" ++ rightStr ++ ") = " ++ probStr
+                    None -> ""
+        Nothing -> ""
+
+displayXProb model =
     let
-        lower = toString model.lowerActual
-        upper = toString model.upperActual
-        left = toString model.twoLeft
-        right = toString model.twoRight
-        prob = toString (roundFloat 3 model.probActual)
-    in
-        case model.tail of
-            Left ->  "P(X \\le " ++ lower ++ ") = " ++ prob
-            Right -> "P(X \\ge " ++ upper ++ ") = " ++ prob
-            Two ->   "P(X \\le " ++ left ++ "\\text{ or }X \\ge" ++ right ++ ") = " ++ prob
-
-
-probElement model =
-    div []
-            [ render (probString model)
-            ]
-
-baseProbString : String -> Int -> Float -> String
-baseProbString comp val prob =
-  "P(X " ++ comp ++ " " ++ (toString val) ++ ") = " ++ (toString prob)
-
-probXStrings : Int -> BinomModel -> (String, String, String) 
-probXStrings x binom =
-    let
-        prob = probX x binom
-        lower = lowerTail x binom
-        upper = upperTail x binom
-    in
-        (baseProbString "=" x prob
-        , baseProbString "\\le" x lower
-        , baseProbString "\\ge" x upper
-        ) 
-
-displayXProbs model =
-    let
-        maybeProbStr = Result.map2 probXStrings model.x model.binom
+        maybeProbStr = Result.map (probXString model.tail model.x) model.binom
     in
         case maybeProbStr of
-            Ok (eqStr, lowerStr, upperStr) -> 
-                div []
-                        [ render eqStr
-                        , render lowerStr
-                        , render upperStr
-                        ]
+            Ok probStr -> 
+                div [] [ render probStr ]
             _ ->
-                div [class "error"] 
-                    [Html.text "Enter a value for x."]
+                div [] [Html.text ""]
 
-outputLeftLimit : Result String Int -> Html Msg
-outputLeftLimit  resultLimit =
-    case resultLimit of 
-        Ok val -> inputGroup "LeftTailLimit" (toString val) ChangeLimit "Left-tail upper bound"
-            
-        Err msg ->
-            div [] [ inputGroup "LeftTailLimit" "" ChangeLimit "Left-tail upper bound"
-                   , span [class "error"] [Html.text msg]]
 
 outputVal : Result String a -> Html msg
 outputVal resultVal = 
@@ -902,12 +550,12 @@ outputVal resultVal =
         Err msg ->
             span [class "error"] [Html.text msg]
 
-
-outputBinom : Model -> Html msg
-outputBinom model =
-    case model.binom of
-        Ok binom -> 
-            div [] [ display ("Binom Model") (binomToStringList binom)]
+outputX resultVal =
+    case resultVal of 
+        Ok val -> Html.text ""
+            
+        Err "Empty" ->
+            span [class "error"] [Html.text  "Enter a value for the observed number of success, x."]
 
         Err msg ->
             span [class "error"] [Html.text msg]

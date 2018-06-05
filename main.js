@@ -21691,9 +21691,43 @@ var _bsouthga$elm_katex$ExactBinomial$display = F2(
 				_1: {ctor: '[]'}
 			});
 	});
-var _bsouthga$elm_katex$ExactBinomial$outputVal = function (resultVal) {
+var _bsouthga$elm_katex$ExactBinomial$outputX = function (resultVal) {
 	var _p0 = resultVal;
 	if (_p0.ctor === 'Ok') {
+		return _elm_lang$html$Html$text('');
+	} else {
+		if (_p0._0 === 'Empty') {
+			return A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('error'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Enter a value for the observed number of success, x.'),
+					_1: {ctor: '[]'}
+				});
+		} else {
+			return A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('error'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p0._0),
+					_1: {ctor: '[]'}
+				});
+		}
+	}
+};
+var _bsouthga$elm_katex$ExactBinomial$outputVal = function (resultVal) {
+	var _p1 = resultVal;
+	if (_p1.ctor === 'Ok') {
 		return _elm_lang$html$Html$text('');
 	} else {
 		return A2(
@@ -21705,30 +21739,11 @@ var _bsouthga$elm_katex$ExactBinomial$outputVal = function (resultVal) {
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p0._0),
+				_0: _elm_lang$html$Html$text(_p1._0),
 				_1: {ctor: '[]'}
 			});
 	}
 };
-var _bsouthga$elm_katex$ExactBinomial$baseProbString = F3(
-	function (comp, val, prob) {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'P(X ',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				comp,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					' ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(val),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							') = ',
-							_elm_lang$core$Basics$toString(prob))))));
-	});
 var _bsouthga$elm_katex$ExactBinomial$inputGroup = F4(
 	function (id, $default, onchange, intext) {
 		return _rundis$elm_bootstrap$Bootstrap_Form_InputGroup$view(
@@ -21766,65 +21781,46 @@ var _bsouthga$elm_katex$ExactBinomial$inputGroup = F4(
 							}
 						}))));
 	});
-var _bsouthga$elm_katex$ExactBinomial$outputLimit = function (model) {
-	var _p1 = model.tail;
-	switch (_p1.ctor) {
-		case 'Left':
-			return _bsouthga$elm_katex$ExactBinomial$outputVal(model.lower);
-		case 'Right':
-			return _bsouthga$elm_katex$ExactBinomial$outputVal(model.upper);
-		default:
-			return _bsouthga$elm_katex$ExactBinomial$outputVal(model.value);
-	}
-};
 var _bsouthga$elm_katex$ExactBinomial$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _bsouthga$elm_katex$ExactBinomial$updateMean = function (model) {
-	var _p2 = {ctor: '_Tuple2', _0: model.n, _1: model.p};
-	if (((_p2.ctor === '_Tuple2') && (_p2._0.ctor === 'Ok')) && (_p2._1.ctor === 'Ok')) {
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{
-				mean: _elm_lang$core$Basics$toFloat(_p2._0._0) * _p2._1._0
-			});
-	} else {
-		return model;
-	}
-};
 var _bsouthga$elm_katex$ExactBinomial$updateX = F2(
 	function (txt, model) {
-		var _p3 = _elm_lang$core$String$toInt(txt);
-		if (_p3.ctor === 'Ok') {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					x: _elm_lang$core$String$toInt(txt)
-				});
+		var _p2 = model.n;
+		if (_p2.ctor === 'Ok') {
+			if (_elm_lang$core$String$isEmpty(txt)) {
+				return _elm_lang$core$Native_Utils.update(
+					model,
+					{
+						x: _elm_lang$core$Maybe$Nothing,
+						xMsg: _elm_lang$core$Result$Err('Empty')
+					});
+			} else {
+				var _p3 = _elm_lang$core$String$toInt(txt);
+				if (_p3.ctor === 'Ok') {
+					var _p4 = _p3._0;
+					return ((_elm_lang$core$Native_Utils.cmp(0, _p4) < 1) && (_elm_lang$core$Native_Utils.cmp(_p4, _p2._0) < 1)) ? _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							x: _elm_lang$core$Maybe$Just(_p4),
+							xMsg: _elm_lang$core$Result$Ok(_p4)
+						}) : _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							x: _elm_lang$core$Maybe$Nothing,
+							xMsg: _elm_lang$core$Result$Err('x must satisfy 0 <= x <= n')
+						});
+				} else {
+					return _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							x: _elm_lang$core$Maybe$Nothing,
+							xMsg: _elm_lang$core$Result$Err('X needs to be in integer')
+						});
+				}
+			}
 		} else {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					x: _elm_lang$core$Result$Err('X needs to be in interger')
-				});
-		}
-	});
-var _bsouthga$elm_katex$ExactBinomial$updateCurrentTail = F2(
-	function (model, val) {
-		var _p4 = model.tail;
-		switch (_p4.ctor) {
-			case 'Left':
-				return _elm_lang$core$Native_Utils.update(
-					model,
-					{lower: val});
-			case 'Right':
-				return _elm_lang$core$Native_Utils.update(
-					model,
-					{upper: val});
-			default:
-				return _elm_lang$core$Native_Utils.update(
-					model,
-					{value: val});
+			return model;
 		}
 	});
 var _bsouthga$elm_katex$ExactBinomial$updateVal = F4(
@@ -21835,26 +21831,6 @@ var _bsouthga$elm_katex$ExactBinomial$updateVal = F4(
 			return validRange(_p6) ? _elm_lang$core$Result$Ok(_p6) : _elm_lang$core$Result$Err(errorMsg);
 		} else {
 			return _elm_lang$core$Result$Err(errorMsg);
-		}
-	});
-var _bsouthga$elm_katex$ExactBinomial$updateNewLimit = F3(
-	function (txt, n, model) {
-		var _p7 = n;
-		if (_p7.ctor === 'Ok') {
-			var val = A4(
-				_bsouthga$elm_katex$ExactBinomial$updateVal,
-				_elm_lang$core$String$toInt,
-				function (k) {
-					return (_elm_lang$core$Native_Utils.cmp(k, 0) > -1) && (_elm_lang$core$Native_Utils.cmp(k, _p7._0) < 1);
-				},
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(model.tail),
-					'- tail bound needs to be a whole number between 0 and n'),
-				txt);
-			return A2(_bsouthga$elm_katex$ExactBinomial$updateCurrentTail, model, val);
-		} else {
-			return model;
 		}
 	});
 var _bsouthga$elm_katex$ExactBinomial$updateN = F2(
@@ -21895,225 +21871,14 @@ var _bsouthga$elm_katex$ExactBinomial$updateP = F2(
 				p: A2(_bsouthga$elm_katex$ExactBinomial$updateInner, 'p', txt)
 			});
 	});
-var _bsouthga$elm_katex$ExactBinomial$maybeUpdateActual = function (value) {
-	var _p8 = value;
-	if (_p8.ctor === 'Ok') {
-		return _p8._0;
-	} else {
-		return 0;
-	}
-};
-var _bsouthga$elm_katex$ExactBinomial$updateActual = function (model) {
-	return _elm_lang$core$Native_Utils.update(
-		model,
-		{
-			lowerActual: _bsouthga$elm_katex$ExactBinomial$maybeUpdateActual(model.lower),
-			upperActual: _bsouthga$elm_katex$ExactBinomial$maybeUpdateActual(model.upper),
-			valueActual: _bsouthga$elm_katex$ExactBinomial$maybeUpdateActual(model.value)
-		});
-};
 var _bsouthga$elm_katex$ExactBinomial$updateTail = F2(
 	function (tail, model) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{tail: tail});
 	});
-var _bsouthga$elm_katex$ExactBinomial$encBar = F2(
-	function (minX, maxX) {
-		return function (_p9) {
-			return _gicentre$elm_vega$VegaLite$encoding(
-				A3(
-					_gicentre$elm_vega$VegaLite$position,
-					_gicentre$elm_vega$VegaLite$X,
-					{
-						ctor: '::',
-						_0: _gicentre$elm_vega$VegaLite$pName('X'),
-						_1: {
-							ctor: '::',
-							_0: _gicentre$elm_vega$VegaLite$pMType(_gicentre$elm_vega$VegaLite$Quantitative),
-							_1: {
-								ctor: '::',
-								_0: _gicentre$elm_vega$VegaLite$pScale(
-									{
-										ctor: '::',
-										_0: _gicentre$elm_vega$VegaLite$scDomain(
-											_gicentre$elm_vega$VegaLite$doNums(
-												{
-													ctor: '::',
-													_0: minX,
-													_1: {
-														ctor: '::',
-														_0: maxX,
-														_1: {ctor: '[]'}
-													}
-												})),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}
-						}
-					},
-					A3(
-						_gicentre$elm_vega$VegaLite$position,
-						_gicentre$elm_vega$VegaLite$Y,
-						{
-							ctor: '::',
-							_0: _gicentre$elm_vega$VegaLite$pName('P(X)'),
-							_1: {
-								ctor: '::',
-								_0: _gicentre$elm_vega$VegaLite$pAggregate(_gicentre$elm_vega$VegaLite$Sum),
-								_1: {
-									ctor: '::',
-									_0: _gicentre$elm_vega$VegaLite$pMType(_gicentre$elm_vega$VegaLite$Quantitative),
-									_1: {ctor: '[]'}
-								}
-							}
-						},
-						A2(
-							_gicentre$elm_vega$VegaLite$tooltips,
-							{
-								ctor: '::',
-								_0: {
-									ctor: '::',
-									_0: _gicentre$elm_vega$VegaLite$tName('X'),
-									_1: {
-										ctor: '::',
-										_0: _gicentre$elm_vega$VegaLite$tMType(_gicentre$elm_vega$VegaLite$Quantitative),
-										_1: {ctor: '[]'}
-									}
-								},
-								_1: {
-									ctor: '::',
-									_0: {
-										ctor: '::',
-										_0: _gicentre$elm_vega$VegaLite$tName('P(X)'),
-										_1: {
-											ctor: '::',
-											_0: _gicentre$elm_vega$VegaLite$tMType(_gicentre$elm_vega$VegaLite$Quantitative),
-											_1: {
-												ctor: '::',
-												_0: _gicentre$elm_vega$VegaLite$tFormat('.3f'),
-												_1: {ctor: '[]'}
-											}
-										}
-									},
-									_1: {ctor: '[]'}
-								}
-							},
-							_p9))));
-		};
-	});
-var _bsouthga$elm_katex$ExactBinomial$binomToStringList = function (bData) {
-	var upperPs = A2(_elm_lang$core$List$map, _elm_lang$core$Json_Encode$float, bData.upperPs);
-	var lowerPs = A2(_elm_lang$core$List$map, _elm_lang$core$Json_Encode$float, bData.lowerPs);
-	var ps = A2(_elm_lang$core$List$map, _elm_lang$core$Json_Encode$float, bData.ps);
-	var xs = A2(_elm_lang$core$List$map, _elm_lang$core$Json_Encode$int, bData.xs);
-	var header = A2(
-		_elm_lang$core$List$map,
-		_elm_lang$core$Json_Encode$string,
-		{
-			ctor: '::',
-			_0: 'X',
-			_1: {
-				ctor: '::',
-				_0: 'P(X)',
-				_1: {
-					ctor: '::',
-					_0: 'P(X or lower)',
-					_1: {
-						ctor: '::',
-						_0: 'P(X or above)',
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		});
-	var rows = {
-		ctor: '::',
-		_0: header,
-		_1: A5(
-			_elm_lang$core$List$map4,
-			F4(
-				function (x, p, lp, up) {
-					return {
-						ctor: '::',
-						_0: x,
-						_1: {
-							ctor: '::',
-							_0: p,
-							_1: {
-								ctor: '::',
-								_0: lp,
-								_1: {
-									ctor: '::',
-									_0: up,
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					};
-				}),
-			xs,
-			ps,
-			lowerPs,
-			upperPs)
-	};
-	return A2(
-		_elm_lang$core$Json_Encode$encode,
-		0,
-		_elm_lang$core$Json_Encode$list(
-			A2(_elm_lang$core$List$map, _elm_lang$core$Json_Encode$list, rows)));
-};
-var _bsouthga$elm_katex$ExactBinomial$outputBinom = function (model) {
-	var _p10 = model.binom;
-	if (_p10.ctor === 'Ok') {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_bsouthga$elm_katex$ExactBinomial$display,
-					'Binom Model',
-					_bsouthga$elm_katex$ExactBinomial$binomToStringList(_p10._0)),
-				_1: {ctor: '[]'}
-			});
-	} else {
-		return A2(
-			_elm_lang$html$Html$span,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('error'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text(_p10._0),
-				_1: {ctor: '[]'}
-			});
-	}
-};
-var _bsouthga$elm_katex$ExactBinomial$pBinomOneTail = F3(
-	function (selector, x, binom) {
-		var tailProbs = selector(binom);
-		var pairs = A3(
-			_elm_lang$core$List$map2,
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}),
-			binom.xs,
-			tailProbs);
-		var probX = F2(
-			function (tup, acc) {
-				return _elm_lang$core$Native_Utils.eq(
-					_elm_lang$core$Tuple$first(tup),
-					x) ? _elm_lang$core$Tuple$second(tup) : acc;
-			});
-		return A3(_elm_lang$core$List$foldl, probX, 0, pairs);
-	});
 var _bsouthga$elm_katex$ExactBinomial$twoTailLimits = F2(
-	function (value, mean) {
+	function (mean, value) {
 		var valueF = _elm_lang$core$Basics$toFloat(value);
 		var diff = (_elm_lang$core$Native_Utils.cmp(valueF, mean) < 1) ? (mean - valueF) : (valueF - mean);
 		var maybeLower = _elm_lang$core$Basics$floor(mean - diff);
@@ -22122,230 +21887,40 @@ var _bsouthga$elm_katex$ExactBinomial$twoTailLimits = F2(
 		var upper = (_elm_lang$core$Native_Utils.cmp(valueF, mean) < 1) ? maybeUpper : value;
 		return {ctor: '_Tuple2', _0: lower, _1: upper};
 	});
-var _bsouthga$elm_katex$ExactBinomial$updateTwoTailLimits = function (model) {
-	var _p11 = A2(_bsouthga$elm_katex$ExactBinomial$twoTailLimits, model.valueActual, model.mean);
-	var lower = _p11._0;
-	var upper = _p11._1;
-	return _elm_lang$core$Native_Utils.update(
-		model,
-		{twoLeft: lower, twoRight: upper});
-};
+var _bsouthga$elm_katex$ExactBinomial$twoTail = F2(
+	function (binom, x) {
+		var _p7 = A2(_elm_lang$core$Dict$get, x, binom.twoPsDict);
+		if (_p7.ctor === 'Just') {
+			return A2(_elm_lang$core$Basics$min, 1, _p7._0);
+		} else {
+			return 0;
+		}
+	});
 var _bsouthga$elm_katex$ExactBinomial$upperTail = F2(
 	function (x, binom) {
-		var _p12 = A2(_elm_lang$core$Dict$get, x, binom.upperPsDict);
-		if (_p12.ctor === 'Just') {
-			return _p12._0;
+		var _p8 = A2(_elm_lang$core$Dict$get, x, binom.upperPsDict);
+		if (_p8.ctor === 'Just') {
+			return _p8._0;
 		} else {
 			return (_elm_lang$core$Native_Utils.cmp(x, binom.minX) < 0) ? 1 : 0;
 		}
 	});
 var _bsouthga$elm_katex$ExactBinomial$lowerTail = F2(
 	function (x, binom) {
-		var _p13 = A2(_elm_lang$core$Dict$get, x, binom.lowerPsDict);
-		if (_p13.ctor === 'Just') {
-			return _p13._0;
+		var _p9 = A2(_elm_lang$core$Dict$get, x, binom.lowerPsDict);
+		if (_p9.ctor === 'Just') {
+			return _p9._0;
 		} else {
 			return (_elm_lang$core$Native_Utils.cmp(x, binom.minX) < 0) ? 0 : 1;
 		}
 	});
-var _bsouthga$elm_katex$ExactBinomial$twoTail = F2(
-	function (binom, value) {
-		var nF = _elm_lang$core$Basics$toFloat(binom.n);
-		var mean = nF * binom.p;
-		var _p14 = A2(_bsouthga$elm_katex$ExactBinomial$twoTailLimits, value, mean);
-		var lower = _p14._0;
-		var upper = _p14._1;
-		var valueF = _elm_lang$core$Basics$toFloat(value);
-		return (_elm_lang$core$Native_Utils.cmp(mean - valueF, 1.0e-2) < 0) ? 1 : (A2(_bsouthga$elm_katex$ExactBinomial$lowerTail, lower, binom) + A2(_bsouthga$elm_katex$ExactBinomial$upperTail, upper, binom));
-	});
-var _bsouthga$elm_katex$ExactBinomial$qBinom = F3(
-	function (tail, binom, area) {
-		var tupHelp = F2(
-			function (tup, acc) {
-				return (_elm_lang$core$Native_Utils.cmp(
-					_elm_lang$core$Tuple$second(tup),
-					area) < 1) ? _elm_lang$core$Tuple$first(tup) : acc;
-			});
-		var tailProbs = function () {
-			var _p15 = tail;
-			switch (_p15.ctor) {
-				case 'Left':
-					return function (_) {
-						return _.lowerPs;
-					}(binom);
-				case 'Right':
-					return _elm_lang$core$List$reverse(
-						function (_) {
-							return _.upperPs;
-						}(binom));
-				default:
-					return A2(
-						_elm_lang$core$List$map,
-						_bsouthga$elm_katex$ExactBinomial$twoTail(binom),
-						binom.xs);
-			}
-		}();
-		var xs = function () {
-			var _p16 = tail;
-			if (_p16.ctor === 'Right') {
-				return _elm_lang$core$List$reverse(
-					function (_) {
-						return _.xs;
-					}(binom));
-			} else {
-				return function (_) {
-					return _.xs;
-				}(binom);
-			}
-		}();
-		var pairs = A3(
-			_elm_lang$core$List$map2,
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}),
-			xs,
-			tailProbs);
-		return A3(_elm_lang$core$List$foldl, tupHelp, 0, pairs);
-	});
-var _bsouthga$elm_katex$ExactBinomial$updateProb = function (model) {
-	var prob = function () {
-		var _p17 = model.tail;
-		switch (_p17.ctor) {
-			case 'Left':
-				return A2(
-					_elm_lang$core$Result$map,
-					_bsouthga$elm_katex$ExactBinomial$lowerTail(model.lowerActual),
-					model.binom);
-			case 'Right':
-				return A2(
-					_elm_lang$core$Result$map,
-					_bsouthga$elm_katex$ExactBinomial$upperTail(model.upperActual),
-					model.binom);
-			default:
-				return A2(
-					_elm_lang$core$Result$map,
-					function (binom) {
-						return A2(_bsouthga$elm_katex$ExactBinomial$twoTail, binom, model.valueActual);
-					},
-					model.binom);
-		}
-	}();
-	var _p18 = prob;
-	if (_p18.ctor === 'Ok') {
-		return _elm_lang$core$Native_Utils.update(
-			model,
-			{probActual: _p18._0});
-	} else {
-		return model;
-	}
-};
 var _bsouthga$elm_katex$ExactBinomial$probX = F2(
 	function (x, binom) {
-		var _p19 = A2(_elm_lang$core$Dict$get, x, binom.psDict);
-		if (_p19.ctor === 'Just') {
-			return _p19._0;
+		var _p10 = A2(_elm_lang$core$Dict$get, x, binom.psDict);
+		if (_p10.ctor === 'Just') {
+			return _p10._0;
 		} else {
 			return 0;
-		}
-	});
-var _bsouthga$elm_katex$ExactBinomial$probXStrings = F2(
-	function (x, binom) {
-		var upper = A2(_bsouthga$elm_katex$ExactBinomial$upperTail, x, binom);
-		var lower = A2(_bsouthga$elm_katex$ExactBinomial$lowerTail, x, binom);
-		var prob = A2(_bsouthga$elm_katex$ExactBinomial$probX, x, binom);
-		return {
-			ctor: '_Tuple3',
-			_0: A3(_bsouthga$elm_katex$ExactBinomial$baseProbString, '=', x, prob),
-			_1: A3(_bsouthga$elm_katex$ExactBinomial$baseProbString, '\\le', x, lower),
-			_2: A3(_bsouthga$elm_katex$ExactBinomial$baseProbString, '\\ge', x, upper)
-		};
-	});
-var _bsouthga$elm_katex$ExactBinomial$displayXProbs = function (model) {
-	var maybeProbStr = A3(_elm_lang$core$Result$map2, _bsouthga$elm_katex$ExactBinomial$probXStrings, model.x, model.binom);
-	var _p20 = maybeProbStr;
-	if ((_p20.ctor === 'Ok') && (_p20._0.ctor === '_Tuple3')) {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _bsouthga$elm_katex$KaTeX$render(_p20._0._0),
-				_1: {
-					ctor: '::',
-					_0: _bsouthga$elm_katex$KaTeX$render(_p20._0._1),
-					_1: {
-						ctor: '::',
-						_0: _bsouthga$elm_katex$KaTeX$render(_p20._0._2),
-						_1: {ctor: '[]'}
-					}
-				}
-			});
-	} else {
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('error'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('Enter a value for x.'),
-				_1: {ctor: '[]'}
-			});
-	}
-};
-var _bsouthga$elm_katex$ExactBinomial$twoTailProb = F2(
-	function (binom, x) {
-		var mean = _elm_lang$core$Basics$toFloat(binom.n) * binom.p;
-		var diff = _elm_lang$core$Basics$toFloat(x) - mean;
-		var lower = (_elm_lang$core$Native_Utils.cmp(diff, 0) < 1) ? x : _elm_lang$core$Basics$floor(mean - diff);
-		var lowerArea = A3(
-			_bsouthga$elm_katex$ExactBinomial$pBinomOneTail,
-			function (_) {
-				return _.lowerPs;
-			},
-			lower,
-			binom);
-		var upper = (_elm_lang$core$Native_Utils.cmp(diff, 0) < 1) ? _elm_lang$core$Basics$ceiling(mean + diff) : x;
-		var upperArea = A3(
-			_bsouthga$elm_katex$ExactBinomial$pBinomOneTail,
-			function (_) {
-				return _.upperPs;
-			},
-			upper,
-			binom);
-		return _elm_lang$core$Native_Utils.eq(diff, 0) ? 1 : (lowerArea + upperArea);
-	});
-var _bsouthga$elm_katex$ExactBinomial$twoTailProbs = function (binom) {
-	return A2(
-		_elm_lang$core$List$map,
-		_bsouthga$elm_katex$ExactBinomial$twoTailProb(binom),
-		binom.xs);
-};
-var _bsouthga$elm_katex$ExactBinomial$pBinom = F3(
-	function (tail, x, binom) {
-		var _p21 = tail;
-		switch (_p21.ctor) {
-			case 'Left':
-				return A3(
-					_bsouthga$elm_katex$ExactBinomial$pBinomOneTail,
-					function (_) {
-						return _.lowerPs;
-					},
-					x,
-					binom);
-			case 'Right':
-				return A3(
-					_bsouthga$elm_katex$ExactBinomial$pBinomOneTail,
-					function (_) {
-						return _.upperPs;
-					},
-					x,
-					binom);
-			default:
-				return A3(_bsouthga$elm_katex$ExactBinomial$pBinomOneTail, _bsouthga$elm_katex$ExactBinomial$twoTailProbs, x, binom);
 		}
 	});
 var _bsouthga$elm_katex$ExactBinomial$filterCol = F2(
@@ -22366,19 +21941,11 @@ var _bsouthga$elm_katex$ExactBinomial$filterCol = F2(
 			pairs);
 		return A2(_elm_lang$core$List$map, _elm_lang$core$Tuple$second, pairsToKeep);
 	});
-var _bsouthga$elm_katex$ExactBinomial$maxProb = function (binom) {
-	var _p22 = _elm_lang$core$List$maximum(binom.ps);
-	if (_p22.ctor === 'Just') {
-		return _p22._0;
-	} else {
-		return 1;
-	}
-};
 var _bsouthga$elm_katex$ExactBinomial$addAndAppend = F2(
 	function (n, acc) {
-		var _p23 = _elm_lang$core$List$head(acc);
-		if (_p23.ctor === 'Just') {
-			return {ctor: '::', _0: n + _p23._0, _1: acc};
+		var _p11 = _elm_lang$core$List$head(acc);
+		if (_p11.ctor === 'Just') {
+			return {ctor: '::', _0: n + _p11._0, _1: acc};
 		} else {
 			return {
 				ctor: '::',
@@ -22414,57 +21981,103 @@ var _bsouthga$elm_katex$ExactBinomial$roundFloat = F2(
 			_elm_lang$core$Basics$toFloat(
 				_elm_lang$core$Basics$round(shifted)));
 	});
-var _bsouthga$elm_katex$ExactBinomial$probString = function (model) {
-	var prob = _elm_lang$core$Basics$toString(
-		A2(_bsouthga$elm_katex$ExactBinomial$roundFloat, 3, model.probActual));
-	var right = _elm_lang$core$Basics$toString(model.twoRight);
-	var left = _elm_lang$core$Basics$toString(model.twoLeft);
-	var upper = _elm_lang$core$Basics$toString(model.upperActual);
-	var lower = _elm_lang$core$Basics$toString(model.lowerActual);
-	var _p24 = model.tail;
-	switch (_p24.ctor) {
-		case 'Left':
-			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				'P(X \\le ',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					lower,
-					A2(_elm_lang$core$Basics_ops['++'], ') = ', prob)));
-		case 'Right':
-			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				'P(X \\ge ',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					upper,
-					A2(_elm_lang$core$Basics_ops['++'], ') = ', prob)));
-		default:
-			return A2(
-				_elm_lang$core$Basics_ops['++'],
-				'P(X \\le ',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					left,
-					A2(
+var _bsouthga$elm_katex$ExactBinomial$probXString = F3(
+	function (tail, x, binom) {
+		var _p12 = x;
+		if (_p12.ctor === 'Just') {
+			var _p17 = _p12._0;
+			var _p13 = A2(_bsouthga$elm_katex$ExactBinomial$twoTailLimits, binom.mean, _p17);
+			var left = _p13._0;
+			var right = _p13._1;
+			var _p14 = {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Basics$toString(left),
+				_1: _elm_lang$core$Basics$toString(right)
+			};
+			var leftStr = _p14._0;
+			var rightStr = _p14._1;
+			var prob = A2(
+				_bsouthga$elm_katex$ExactBinomial$roundFloat,
+				3,
+				function () {
+					var _p15 = tail;
+					switch (_p15.ctor) {
+						case 'Left':
+							return A2(_bsouthga$elm_katex$ExactBinomial$lowerTail, _p17, binom);
+						case 'Right':
+							return A2(_bsouthga$elm_katex$ExactBinomial$upperTail, _p17, binom);
+						case 'Two':
+							return A2(_bsouthga$elm_katex$ExactBinomial$twoTail, binom, _p17);
+						default:
+							return 0;
+					}
+				}());
+			var probStr = _elm_lang$core$Basics$toString(prob);
+			var xStr = _elm_lang$core$Basics$toString(_p17);
+			var _p16 = tail;
+			switch (_p16.ctor) {
+				case 'Left':
+					return A2(
 						_elm_lang$core$Basics_ops['++'],
-						'\\text{ or }X \\ge',
+						'P(X \\le ',
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							right,
-							A2(_elm_lang$core$Basics_ops['++'], ') = ', prob)))));
+							xStr,
+							A2(_elm_lang$core$Basics_ops['++'], ') = ', probStr)));
+				case 'Right':
+					return A2(
+						_elm_lang$core$Basics_ops['++'],
+						'P(X \\ge ',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							xStr,
+							A2(_elm_lang$core$Basics_ops['++'], ') = ', probStr)));
+				case 'Two':
+					return A2(
+						_elm_lang$core$Basics_ops['++'],
+						'P(X \\le ',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							leftStr,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'\\text{ or }X \\ge',
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									rightStr,
+									A2(_elm_lang$core$Basics_ops['++'], ') = ', probStr)))));
+				default:
+					return '';
+			}
+		} else {
+			return '';
+		}
+	});
+var _bsouthga$elm_katex$ExactBinomial$displayXProb = function (model) {
+	var maybeProbStr = A2(
+		_elm_lang$core$Result$map,
+		A2(_bsouthga$elm_katex$ExactBinomial$probXString, model.tail, model.x),
+		model.binom);
+	var _p18 = maybeProbStr;
+	if (_p18.ctor === 'Ok') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _bsouthga$elm_katex$KaTeX$render(_p18._0),
+				_1: {ctor: '[]'}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(''),
+				_1: {ctor: '[]'}
+			});
 	}
-};
-var _bsouthga$elm_katex$ExactBinomial$probElement = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _bsouthga$elm_katex$KaTeX$render(
-				_bsouthga$elm_katex$ExactBinomial$probString(model)),
-			_1: {ctor: '[]'}
-		});
 };
 var _bsouthga$elm_katex$ExactBinomial$newXs = function (n) {
 	return A2(_elm_lang$core$List$range, 0, n);
@@ -22567,80 +22180,6 @@ var _bsouthga$elm_katex$ExactBinomial$probRange = F4(
 			},
 			logProbs);
 	});
-var _bsouthga$elm_katex$ExactBinomial$displayProbs = F4(
-	function (n, p, start, stop) {
-		var lbl = A2(
-			_elm_lang$core$Basics_ops['++'],
-			'Range from ',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(start),
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					' to ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(stop),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' with n = ',
-							_elm_lang$core$Basics$toString(n))))));
-		return A2(
-			_bsouthga$elm_katex$ExactBinomial$display,
-			lbl,
-			A4(_bsouthga$elm_katex$ExactBinomial$probRange, n, p, start, stop));
-	});
-var _bsouthga$elm_katex$ExactBinomial$displayRange = F3(
-	function (n, start, stop) {
-		var lbl = A2(
-			_elm_lang$core$Basics_ops['++'],
-			'Range from ',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				_elm_lang$core$Basics$toString(start),
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					' to ',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(stop),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' with n = ',
-							_elm_lang$core$Basics$toString(n))))));
-		return A2(
-			_bsouthga$elm_katex$ExactBinomial$display,
-			lbl,
-			A2(
-				_elm_lang$core$List$map,
-				function (_p25) {
-					return _elm_lang$core$Basics$round(
-						function (n) {
-							return Math.pow(10.0, n);
-						}(_p25));
-				},
-				A3(_bsouthga$elm_katex$ExactBinomial$binomLogCoefRange, n, start, stop)));
-	});
-var _bsouthga$elm_katex$ExactBinomial$displayCoef = function (n) {
-	return A2(
-		_bsouthga$elm_katex$ExactBinomial$display,
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			'Binom ',
-			_elm_lang$core$Basics$toString(n)),
-		A2(
-			_elm_lang$core$List$map,
-			_elm_lang$core$Basics$round,
-			A2(
-				_elm_lang$core$List$map,
-				function (n) {
-					return Math.pow(10, n);
-				},
-				A2(
-					_elm_lang$core$List$map,
-					_bsouthga$elm_katex$ExactBinomial$binomLogCoef(n),
-					A2(_elm_lang$core$List$range, 0, n)))));
-};
 var _bsouthga$elm_katex$ExactBinomial$meanBinom = F2(
 	function (n, p) {
 		return _elm_lang$core$Basics$toFloat(n) * p;
@@ -22655,9 +22194,9 @@ var _bsouthga$elm_katex$ExactBinomial$elmToJS = _elm_lang$core$Native_Platform.o
 		return v;
 	});
 var _bsouthga$elm_katex$ExactBinomial$makeCmd = function (model) {
-	var _p26 = model.vegaSpec;
-	if (_p26.ctor === 'Ok') {
-		return _bsouthga$elm_katex$ExactBinomial$elmToJS(_p26._0);
+	var _p19 = model.vegaSpec;
+	if (_p19.ctor === 'Ok') {
+		return _bsouthga$elm_katex$ExactBinomial$elmToJS(_p19._0);
 	} else {
 		return _elm_lang$core$Platform_Cmd$none;
 	}
@@ -22673,9 +22212,7 @@ var _bsouthga$elm_katex$ExactBinomial$BinomModel = function (a) {
 								return function (i) {
 									return function (j) {
 										return function (k) {
-											return function (l) {
-												return {xs: a, ps: b, psDict: c, lowerPs: d, lowerPsDict: e, upperPs: f, upperPsDict: g, n: h, p: i, mean: j, minX: k, maxX: l};
-											};
+											return {xs: a, ps: b, psDict: c, lowerPsDict: d, upperPsDict: e, twoPsDict: f, n: g, p: h, mean: i, minX: j, maxX: k};
 										};
 									};
 								};
@@ -22687,44 +22224,17 @@ var _bsouthga$elm_katex$ExactBinomial$BinomModel = function (a) {
 		};
 	};
 };
-var _bsouthga$elm_katex$ExactBinomial$binomData = F2(
-	function (n, p) {
-		var mean = A2(_bsouthga$elm_katex$ExactBinomial$meanBinom, n, p);
-		var ps = A2(_bsouthga$elm_katex$ExactBinomial$newPs, n, p);
-		var lowerPs = _bsouthga$elm_katex$ExactBinomial$cumultSuml(ps);
-		var upperPs = _bsouthga$elm_katex$ExactBinomial$cumultSumr(ps);
-		var xs = A2(_elm_lang$core$List$range, 0, n);
-		var psDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				xs,
-				ps));
-		var lowerDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				xs,
-				lowerPs));
-		var upperDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				xs,
-				upperPs));
-		return _bsouthga$elm_katex$ExactBinomial$BinomModel(xs)(ps)(psDict)(lowerPs)(lowerDict)(upperPs)(upperDict)(n)(p)(mean)(0)(n);
-	});
 var _bsouthga$elm_katex$ExactBinomial$binomDataRange = F4(
 	function (n, p, start, stop) {
+		var getTailProb = F2(
+			function (dict, x) {
+				var _p20 = A2(_elm_lang$core$Dict$get, x, dict);
+				if (_p20.ctor === 'Just') {
+					return _p20._0;
+				} else {
+					return 0;
+				}
+			});
 		var mean = A2(_bsouthga$elm_katex$ExactBinomial$meanBinom, n, p);
 		var ps = A4(_bsouthga$elm_katex$ExactBinomial$probRange, n, p, start, stop);
 		var lowerPs = _bsouthga$elm_katex$ExactBinomial$cumultSuml(ps);
@@ -22757,7 +22267,39 @@ var _bsouthga$elm_katex$ExactBinomial$binomDataRange = F4(
 					}),
 				xs,
 				upperPs));
-		return _bsouthga$elm_katex$ExactBinomial$BinomModel(xs)(ps)(psDict)(lowerPs)(lowerDict)(upperPs)(upperDict)(n)(p)(mean)(start)(stop);
+		var _p21 = _elm_lang$core$List$unzip(
+			A2(
+				_elm_lang$core$List$map,
+				_bsouthga$elm_katex$ExactBinomial$twoTailLimits(mean),
+				xs));
+		var lLim = _p21._0;
+		var uLim = _p21._1;
+		var leftTail = A2(
+			_elm_lang$core$List$map,
+			getTailProb(lowerDict),
+			lLim);
+		var rightTail = A2(
+			_elm_lang$core$List$map,
+			getTailProb(upperDict),
+			uLim);
+		var tailProbs = A3(
+			_elm_lang$core$List$map2,
+			F2(
+				function (x, y) {
+					return x + y;
+				}),
+			leftTail,
+			rightTail);
+		var twoDict = _elm_lang$core$Dict$fromList(
+			A3(
+				_elm_lang$core$List$map2,
+				F2(
+					function (v0, v1) {
+						return {ctor: '_Tuple2', _0: v0, _1: v1};
+					}),
+				xs,
+				tailProbs));
+		return _bsouthga$elm_katex$ExactBinomial$BinomModel(xs)(ps)(psDict)(lowerDict)(upperDict)(twoDict)(n)(p)(mean)(start)(stop);
 	});
 var _bsouthga$elm_katex$ExactBinomial$binomDataTrimmed = F2(
 	function (n, p) {
@@ -22780,116 +22322,27 @@ var _bsouthga$elm_katex$ExactBinomial$updateBinom = function (model) {
 			binom: A3(_elm_lang$core$Result$map2, _bsouthga$elm_katex$ExactBinomial$binomDataTrimmed, model.n, model.p)
 		});
 };
-var _bsouthga$elm_katex$ExactBinomial$filterProbs = F2(
-	function (limit, binom) {
-		var mean = A2(_bsouthga$elm_katex$ExactBinomial$meanBinom, binom.n, binom.p);
-		var toKeep = A2(
-			_elm_lang$core$List$map,
-			function (p) {
-				return _elm_lang$core$Native_Utils.cmp(p, limit) > 0;
-			},
-			binom.ps);
-		var newXs = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.xs);
-		var minX = function () {
-			var _p27 = _elm_lang$core$List$minimum(newXs);
-			if (_p27.ctor === 'Just') {
-				return _p27._0;
-			} else {
-				return 0;
-			}
-		}();
-		var maxX = function () {
-			var _p28 = _elm_lang$core$List$maximum(newXs);
-			if (_p28.ctor === 'Just') {
-				return _p28._0;
-			} else {
-				return binom.n;
-			}
-		}();
-		var ps = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.ps);
-		var psDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				newXs,
-				ps));
-		var lowerPs = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.lowerPs);
-		var lowerDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				newXs,
-				lowerPs));
-		var upperPs = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.upperPs);
-		var upperDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				newXs,
-				upperPs));
-		return _bsouthga$elm_katex$ExactBinomial$BinomModel(newXs)(ps)(psDict)(lowerPs)(lowerDict)(upperPs)(upperDict)(binom.n)(binom.p)(mean)(minX)(maxX);
-	});
 var _bsouthga$elm_katex$ExactBinomial$filterXs = F2(
 	function (pred, binom) {
-		var mean = A2(_bsouthga$elm_katex$ExactBinomial$meanBinom, binom.n, binom.p);
 		var toKeep = A2(_elm_lang$core$List$map, pred, binom.xs);
 		var newXs = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.xs);
 		var minX = function () {
-			var _p29 = _elm_lang$core$List$minimum(newXs);
-			if (_p29.ctor === 'Just') {
-				return _p29._0;
+			var _p22 = _elm_lang$core$List$minimum(newXs);
+			if (_p22.ctor === 'Just') {
+				return _p22._0;
 			} else {
 				return 0;
 			}
 		}();
 		var maxX = function () {
-			var _p30 = _elm_lang$core$List$maximum(newXs);
-			if (_p30.ctor === 'Just') {
-				return _p30._0;
+			var _p23 = _elm_lang$core$List$maximum(newXs);
+			if (_p23.ctor === 'Just') {
+				return _p23._0;
 			} else {
 				return binom.n;
 			}
 		}();
-		var ps = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.ps);
-		var psDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				newXs,
-				ps));
-		var lowerPs = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.lowerPs);
-		var lowerDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				newXs,
-				lowerPs));
-		var upperPs = A2(_bsouthga$elm_katex$ExactBinomial$filterCol, toKeep, binom.upperPs);
-		var upperDict = _elm_lang$core$Dict$fromList(
-			A3(
-				_elm_lang$core$List$map2,
-				F2(
-					function (v0, v1) {
-						return {ctor: '_Tuple2', _0: v0, _1: v1};
-					}),
-				newXs,
-				upperPs));
-		return _bsouthga$elm_katex$ExactBinomial$BinomModel(newXs)(ps)(psDict)(lowerPs)(lowerDict)(upperPs)(upperDict)(binom.n)(binom.p)(mean)(minX)(maxX);
+		return A4(_bsouthga$elm_katex$ExactBinomial$binomDataRange, binom.n, binom.p, minX, maxX);
 	});
 var _bsouthga$elm_katex$ExactBinomial$removeTails = function (binom) {
 	var $var = (_elm_lang$core$Basics$toFloat(binom.n) * binom.p) * (1.0 - binom.p);
@@ -22908,7 +22361,7 @@ var _bsouthga$elm_katex$ExactBinomial$removeTails = function (binom) {
 };
 var _bsouthga$elm_katex$ExactBinomial$spec = F3(
 	function (tail, limit, fullBinom) {
-		var selectedEnc = function (_p31) {
+		var selectedEnc = function (_p24) {
 			return _gicentre$elm_vega$VegaLite$encoding(
 				A3(
 					_gicentre$elm_vega$VegaLite$position,
@@ -22976,9 +22429,9 @@ var _bsouthga$elm_katex$ExactBinomial$spec = F3(
 									_0: _gicentre$elm_vega$VegaLite$mStr('red'),
 									_1: {ctor: '[]'}
 								},
-								_p31)))));
+								_p24)))));
 		};
-		var encPMF = function (_p32) {
+		var encPMF = function (_p25) {
 			return _gicentre$elm_vega$VegaLite$encoding(
 				A3(
 					_gicentre$elm_vega$VegaLite$position,
@@ -23039,10 +22492,10 @@ var _bsouthga$elm_katex$ExactBinomial$spec = F3(
 									_1: {ctor: '[]'}
 								}
 							},
-							_p32))));
+							_p25))));
 		};
 		var binom = _bsouthga$elm_katex$ExactBinomial$removeTails(fullBinom);
-		var d = function (_p33) {
+		var d = function (_p26) {
 			return A2(
 				_gicentre$elm_vega$VegaLite$dataFromColumns,
 				{ctor: '[]'},
@@ -23055,49 +22508,56 @@ var _bsouthga$elm_katex$ExactBinomial$spec = F3(
 						_gicentre$elm_vega$VegaLite$dataColumn,
 						'P(X)',
 						_gicentre$elm_vega$VegaLite$nums(binom.ps),
-						_p33)));
+						_p26)));
 		};
 		var mean = _elm_lang$core$Basics$toFloat(fullBinom.n) * fullBinom.p;
-		var _p34 = A2(_bsouthga$elm_katex$ExactBinomial$twoTailLimits, limit, mean);
-		var lower = _p34._0;
-		var upper = _p34._1;
 		var expr = function () {
-			var _p35 = tail;
-			switch (_p35.ctor) {
-				case 'Left':
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						'datum.X <= ',
-						_elm_lang$core$Basics$toString(limit));
-				case 'Right':
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						'datum.X >= ',
-						_elm_lang$core$Basics$toString(limit));
-				default:
-					return _elm_lang$core$Native_Utils.eq(
-						mean,
-						_elm_lang$core$Basics$toFloat(limit)) ? 'true' : A2(
-						_elm_lang$core$Basics_ops['++'],
-						'datum.X <= ',
-						A2(
+			var _p27 = {ctor: '_Tuple2', _0: tail, _1: limit};
+			if (_p27._1.ctor === 'Nothing') {
+				return 'false';
+			} else {
+				switch (_p27._0.ctor) {
+					case 'None':
+						return 'false';
+					case 'Left':
+						return A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(lower),
+							'datum.X <= ',
+							_elm_lang$core$Basics$toString(_p27._1._0));
+					case 'Right':
+						return A2(
+							_elm_lang$core$Basics_ops['++'],
+							'datum.X >= ',
+							_elm_lang$core$Basics$toString(_p27._1._0));
+					default:
+						var _p29 = _p27._1._0;
+						var _p28 = A2(_bsouthga$elm_katex$ExactBinomial$twoTailLimits, mean, _p29);
+						var lower = _p28._0;
+						var upper = _p28._1;
+						return _elm_lang$core$Native_Utils.eq(
+							mean,
+							_elm_lang$core$Basics$toFloat(_p29)) ? 'true' : A2(
+							_elm_lang$core$Basics_ops['++'],
+							'datum.X <= ',
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								' || ',
+								_elm_lang$core$Basics$toString(lower),
 								A2(
 									_elm_lang$core$Basics_ops['++'],
-									'datum.X >= ',
-									_elm_lang$core$Basics$toString(upper)))));
+									' || ',
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'datum.X >= ',
+										_elm_lang$core$Basics$toString(upper)))));
+				}
 			}
 		}();
-		var trans = function (_p36) {
+		var trans = function (_p30) {
 			return _gicentre$elm_vega$VegaLite$transform(
 				A2(
 					_gicentre$elm_vega$VegaLite$filter,
 					_gicentre$elm_vega$VegaLite$fiExpr(expr),
-					_p36));
+					_p30));
 		};
 		return _gicentre$elm_vega$VegaLite$toVegaLite(
 			{
@@ -23156,125 +22616,22 @@ var _bsouthga$elm_katex$ExactBinomial$spec = F3(
 			});
 	});
 var _bsouthga$elm_katex$ExactBinomial$updateSpec = function (model) {
-	var limit = function () {
-		var _p37 = model.tail;
-		switch (_p37.ctor) {
-			case 'Left':
-				return model.lowerActual;
-			case 'Right':
-				return model.upperActual;
-			default:
-				return model.valueActual;
-		}
-	}();
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{
 			vegaSpec: A2(
 				_elm_lang$core$Result$map,
-				A2(_bsouthga$elm_katex$ExactBinomial$spec, model.tail, limit),
+				A2(_bsouthga$elm_katex$ExactBinomial$spec, model.tail, model.x),
 				model.binom)
-		});
-};
-var _bsouthga$elm_katex$ExactBinomial$Model = function (a) {
-	return function (b) {
-		return function (c) {
-			return function (d) {
-				return function (e) {
-					return function (f) {
-						return function (g) {
-							return function (h) {
-								return function (i) {
-									return function (j) {
-										return function (k) {
-											return function (l) {
-												return function (m) {
-													return function (n) {
-														return function (o) {
-															return function (p) {
-																return {n: a, p: b, x: c, mean: d, tail: e, lower: f, lowerActual: g, upper: h, upperActual: i, value: j, valueActual: k, twoLeft: l, twoRight: m, binom: n, probActual: o, vegaSpec: p};
-															};
-														};
-													};
-												};
-											};
-										};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var _bsouthga$elm_katex$ExactBinomial$Two = {ctor: 'Two'};
-var _bsouthga$elm_katex$ExactBinomial$Right = {ctor: 'Right'};
-var _bsouthga$elm_katex$ExactBinomial$Left = {ctor: 'Left'};
-var _bsouthga$elm_katex$ExactBinomial$model = function () {
-	var twoRight = 8;
-	var twoLeft = 2;
-	var value = _elm_lang$core$String$toInt('2');
-	var upper = _elm_lang$core$String$toInt('8');
-	var lowerActual = 2;
-	var probActual = A2(
-		_bsouthga$elm_katex$ExactBinomial$lowerTail,
-		lowerActual,
-		A2(_bsouthga$elm_katex$ExactBinomial$binomData, 10, 0.5));
-	var lower = _elm_lang$core$String$toInt('2');
-	var tail = _bsouthga$elm_katex$ExactBinomial$Left;
-	var mean = 5;
-	var x = _elm_lang$core$String$toInt('');
-	var p = _elm_lang$core$String$toFloat('0.5');
-	var n = _elm_lang$core$String$toInt('10');
-	var binom = A3(_elm_lang$core$Result$map2, _bsouthga$elm_katex$ExactBinomial$binomDataTrimmed, n, p);
-	var vegaSpec = A2(
-		_elm_lang$core$Result$map,
-		A2(_bsouthga$elm_katex$ExactBinomial$spec, tail, lowerActual),
-		binom);
-	return _bsouthga$elm_katex$ExactBinomial$Model(n)(p)(x)(mean)(tail)(lower)(lowerActual)(upper)(8)(value)(2)(twoLeft)(twoRight)(binom)(probActual)(vegaSpec);
-}();
-var _bsouthga$elm_katex$ExactBinomial$init = {
-	ctor: '_Tuple2',
-	_0: _bsouthga$elm_katex$ExactBinomial$model,
-	_1: _bsouthga$elm_katex$ExactBinomial$makeCmd(_bsouthga$elm_katex$ExactBinomial$model)
-};
-var _bsouthga$elm_katex$ExactBinomial$updateLimit = function (model) {
-	var tailProb = function () {
-		var _p38 = model.tail;
-		if (_p38.ctor === 'Two') {
-			return '0.025';
-		} else {
-			return '0.05';
-		}
-	}();
-	var updateHelp = function (tail) {
-		return A3(
-			_elm_lang$core$Result$map2,
-			_bsouthga$elm_katex$ExactBinomial$qBinom(tail),
-			model.binom,
-			_elm_lang$core$String$toFloat(tailProb));
-	};
-	return _elm_lang$core$Native_Utils.update(
-		model,
-		{
-			lower: updateHelp(_bsouthga$elm_katex$ExactBinomial$Left),
-			upper: updateHelp(_bsouthga$elm_katex$ExactBinomial$Right),
-			value: updateHelp(_bsouthga$elm_katex$ExactBinomial$Two)
 		});
 };
 var _bsouthga$elm_katex$ExactBinomial$update = F2(
 	function (msg, model) {
-		var _p39 = msg;
-		switch (_p39.ctor) {
+		var _p31 = msg;
+		switch (_p31.ctor) {
 			case 'ChangeTail':
 				var new_model = _bsouthga$elm_katex$ExactBinomial$updateSpec(
-					_bsouthga$elm_katex$ExactBinomial$updateProb(
-						_bsouthga$elm_katex$ExactBinomial$updateTwoTailLimits(
-							_bsouthga$elm_katex$ExactBinomial$updateActual(
-								_bsouthga$elm_katex$ExactBinomial$updateLimit(
-									A2(_bsouthga$elm_katex$ExactBinomial$updateTail, _p39._0, model))))));
+					A2(_bsouthga$elm_katex$ExactBinomial$updateTail, _p31._0, model));
 				return {
 					ctor: '_Tuple2',
 					_0: new_model,
@@ -23282,16 +22639,11 @@ var _bsouthga$elm_katex$ExactBinomial$update = F2(
 				};
 			case 'ChangeN':
 				var new_model = _bsouthga$elm_katex$ExactBinomial$updateSpec(
-					_bsouthga$elm_katex$ExactBinomial$updateProb(
-						_bsouthga$elm_katex$ExactBinomial$updateTwoTailLimits(
-							_bsouthga$elm_katex$ExactBinomial$updateActual(
-								_bsouthga$elm_katex$ExactBinomial$updateLimit(
-									_bsouthga$elm_katex$ExactBinomial$updateBinom(
-										_bsouthga$elm_katex$ExactBinomial$updateMean(
-											A2(
-												_bsouthga$elm_katex$ExactBinomial$updateX,
-												'',
-												A2(_bsouthga$elm_katex$ExactBinomial$updateN, _p39._0, model)))))))));
+					_bsouthga$elm_katex$ExactBinomial$updateBinom(
+						A2(
+							_bsouthga$elm_katex$ExactBinomial$updateX,
+							'',
+							A2(_bsouthga$elm_katex$ExactBinomial$updateN, _p31._0, model))));
 				return {
 					ctor: '_Tuple2',
 					_0: new_model,
@@ -23299,109 +22651,70 @@ var _bsouthga$elm_katex$ExactBinomial$update = F2(
 				};
 			case 'ChangeP':
 				var new_model = _bsouthga$elm_katex$ExactBinomial$updateSpec(
-					_bsouthga$elm_katex$ExactBinomial$updateProb(
-						_bsouthga$elm_katex$ExactBinomial$updateTwoTailLimits(
-							_bsouthga$elm_katex$ExactBinomial$updateActual(
-								_bsouthga$elm_katex$ExactBinomial$updateLimit(
-									_bsouthga$elm_katex$ExactBinomial$updateBinom(
-										_bsouthga$elm_katex$ExactBinomial$updateMean(
-											A2(
-												_bsouthga$elm_katex$ExactBinomial$updateX,
-												'',
-												A2(_bsouthga$elm_katex$ExactBinomial$updateP, _p39._0, model)))))))));
-				return {
-					ctor: '_Tuple2',
-					_0: new_model,
-					_1: _bsouthga$elm_katex$ExactBinomial$makeCmd(new_model)
-				};
-			case 'ChangeLimit':
-				var new_model = _bsouthga$elm_katex$ExactBinomial$updateSpec(
-					_bsouthga$elm_katex$ExactBinomial$updateProb(
-						_bsouthga$elm_katex$ExactBinomial$updateTwoTailLimits(
-							_bsouthga$elm_katex$ExactBinomial$updateActual(
-								A3(_bsouthga$elm_katex$ExactBinomial$updateNewLimit, _p39._0, model.n, model)))));
+					_bsouthga$elm_katex$ExactBinomial$updateBinom(
+						A2(
+							_bsouthga$elm_katex$ExactBinomial$updateX,
+							'',
+							A2(_bsouthga$elm_katex$ExactBinomial$updateP, _p31._0, model))));
 				return {
 					ctor: '_Tuple2',
 					_0: new_model,
 					_1: _bsouthga$elm_katex$ExactBinomial$makeCmd(new_model)
 				};
 			default:
-				var new_model = A2(_bsouthga$elm_katex$ExactBinomial$updateX, _p39._0, model);
-				return {ctor: '_Tuple2', _0: new_model, _1: _elm_lang$core$Platform_Cmd$none};
+				var new_model = _bsouthga$elm_katex$ExactBinomial$updateSpec(
+					A2(_bsouthga$elm_katex$ExactBinomial$updateX, _p31._0, model));
+				return {
+					ctor: '_Tuple2',
+					_0: new_model,
+					_1: _bsouthga$elm_katex$ExactBinomial$makeCmd(new_model)
+				};
 		}
 	});
+var _bsouthga$elm_katex$ExactBinomial$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {n: a, p: b, x: c, xMsg: d, tail: e, binom: f, vegaSpec: g};
+	});
+var _bsouthga$elm_katex$ExactBinomial$None = {ctor: 'None'};
+var _bsouthga$elm_katex$ExactBinomial$model = function () {
+	var tail = _bsouthga$elm_katex$ExactBinomial$None;
+	var xMsg = _elm_lang$core$Result$Err('Empty');
+	var x = _elm_lang$core$Maybe$Nothing;
+	var p = _elm_lang$core$String$toFloat('0.5');
+	var n = _elm_lang$core$String$toInt('10');
+	var binom = A3(_elm_lang$core$Result$map2, _bsouthga$elm_katex$ExactBinomial$binomDataTrimmed, n, p);
+	var vegaSpec = A2(
+		_elm_lang$core$Result$map,
+		A2(_bsouthga$elm_katex$ExactBinomial$spec, tail, x),
+		binom);
+	return A7(_bsouthga$elm_katex$ExactBinomial$Model, n, p, x, xMsg, tail, binom, vegaSpec);
+}();
+var _bsouthga$elm_katex$ExactBinomial$init = {
+	ctor: '_Tuple2',
+	_0: _bsouthga$elm_katex$ExactBinomial$model,
+	_1: _bsouthga$elm_katex$ExactBinomial$makeCmd(_bsouthga$elm_katex$ExactBinomial$model)
+};
+var _bsouthga$elm_katex$ExactBinomial$Two = {ctor: 'Two'};
+var _bsouthga$elm_katex$ExactBinomial$Right = {ctor: 'Right'};
+var _bsouthga$elm_katex$ExactBinomial$Left = {ctor: 'Left'};
 var _bsouthga$elm_katex$ExactBinomial$ChangeSearch = function (a) {
 	return {ctor: 'ChangeSearch', _0: a};
 };
-var _bsouthga$elm_katex$ExactBinomial$ChangeTail = function (a) {
-	return {ctor: 'ChangeTail', _0: a};
-};
-var _bsouthga$elm_katex$ExactBinomial$ChangeLimit = function (a) {
-	return {ctor: 'ChangeLimit', _0: a};
-};
-var _bsouthga$elm_katex$ExactBinomial$inputTail = function (model) {
-	var $default = function () {
-		var _p40 = model.tail;
-		switch (_p40.ctor) {
-			case 'Left':
-				return _elm_lang$core$Basics$toString(model.lowerActual);
-			case 'Right':
-				return _elm_lang$core$Basics$toString(model.upperActual);
-			default:
-				return _elm_lang$core$Basics$toString(model.valueActual);
-		}
-	}();
-	var label = A2(
-		_elm_lang$core$Basics_ops['++'],
-		_elm_lang$core$Basics$toString(model.tail),
-		'-tail');
-	var txt = function () {
-		var _p41 = model.tail;
-		switch (_p41.ctor) {
-			case 'Left':
-				return A2(_elm_lang$core$Basics_ops['++'], label, ' upper bound');
-			case 'Right':
-				return A2(_elm_lang$core$Basics_ops['++'], label, ' lower bound');
-			default:
-				return 'Value';
-		}
-	}();
-	return A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, label, $default, _bsouthga$elm_katex$ExactBinomial$ChangeLimit, txt);
-};
-var _bsouthga$elm_katex$ExactBinomial$outputLeftLimit = function (resultLimit) {
-	var _p42 = resultLimit;
-	if (_p42.ctor === 'Ok') {
+var _bsouthga$elm_katex$ExactBinomial$inputX = function (model) {
+	var _p32 = model.x;
+	if (_p32.ctor === 'Just') {
 		return A4(
 			_bsouthga$elm_katex$ExactBinomial$inputGroup,
-			'LeftTailLimit',
-			_elm_lang$core$Basics$toString(_p42._0),
-			_bsouthga$elm_katex$ExactBinomial$ChangeLimit,
-			'Left-tail upper bound');
+			'x',
+			_elm_lang$core$Basics$toString(_p32._0),
+			_bsouthga$elm_katex$ExactBinomial$ChangeSearch,
+			'x = ');
 	} else {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'LeftTailLimit', '', _bsouthga$elm_katex$ExactBinomial$ChangeLimit, 'Left-tail upper bound'),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$span,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('error'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(_p42._0),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
-			});
+		return A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'x', '', _bsouthga$elm_katex$ExactBinomial$ChangeSearch, 'x = ');
 	}
+};
+var _bsouthga$elm_katex$ExactBinomial$ChangeTail = function (a) {
+	return {ctor: 'ChangeTail', _0: a};
 };
 var _bsouthga$elm_katex$ExactBinomial$ChangeP = function (a) {
 	return {ctor: 'ChangeP', _0: a};
@@ -23502,10 +22815,10 @@ var _bsouthga$elm_katex$ExactBinomial$view = function (model) {
 									}),
 								_1: {
 									ctor: '::',
-									_0: _bsouthga$elm_katex$ExactBinomial$inputTail(model),
+									_0: _bsouthga$elm_katex$ExactBinomial$inputX(model),
 									_1: {
 										ctor: '::',
-										_0: _bsouthga$elm_katex$ExactBinomial$outputLimit(model),
+										_0: _bsouthga$elm_katex$ExactBinomial$outputX(model.xMsg),
 										_1: {
 											ctor: '::',
 											_0: A2(
@@ -23515,42 +22828,23 @@ var _bsouthga$elm_katex$ExactBinomial$view = function (model) {
 											_1: {
 												ctor: '::',
 												_0: A2(
-													_elm_lang$html$Html$h4,
+													_elm_lang$html$Html$br,
 													{ctor: '[]'},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('Probability'),
-														_1: {ctor: '[]'}
-													}),
+													{ctor: '[]'}),
 												_1: {
 													ctor: '::',
-													_0: _bsouthga$elm_katex$ExactBinomial$probElement(model),
+													_0: A2(
+														_elm_lang$html$Html$h4,
+														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('Probability'),
+															_1: {ctor: '[]'}
+														}),
 													_1: {
 														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$br,
-															{ctor: '[]'},
-															{ctor: '[]'}),
-														_1: {
-															ctor: '::',
-															_0: A2(
-																_elm_lang$html$Html$h4,
-																{ctor: '[]'},
-																{
-																	ctor: '::',
-																	_0: _elm_lang$html$Html$text('Search'),
-																	_1: {ctor: '[]'}
-																}),
-															_1: {
-																ctor: '::',
-																_0: A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'x', '', _bsouthga$elm_katex$ExactBinomial$ChangeSearch, 'x = '),
-																_1: {
-																	ctor: '::',
-																	_0: _bsouthga$elm_katex$ExactBinomial$displayXProbs(model),
-																	_1: {ctor: '[]'}
-																}
-															}
-														}
+														_0: _bsouthga$elm_katex$ExactBinomial$displayXProb(model),
+														_1: {ctor: '[]'}
 													}
 												}
 											}
