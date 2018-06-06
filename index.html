@@ -25,20 +25,22 @@
 </head>
 <body>
 
-<div class="container-fluid">
-  <h3>Exact Binomial Probability</h3>
-  <div class="row">
-    <div class="col-sm-4" id="left">Left Box</div>
+<div id="app"></div>
 <script>
-    var node = document.getElementById('left');
+    var node = document.getElementById('app');
     var app = Elm.ExactBinomial.embed(node);
 
-    app.ports.elmToJS.subscribe(function(specs) {
-      vegaEmbed("#vis", specs, {actions: false}).catch(console.warn);
-    });
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+  let updateChart = function(spec){
+    console.log(spec);
+    requestAnimationFrame(function(){
+      vegaEmbed("#vis", spec, {actions: false}).catch(console.warn);
+      });
+   }
+
+    app.ports.elmToJS.subscribe(updateChart);
 </script>
-    <div class="col-sm-8" id="vis"></div>
-  </div>
     
 </body>
 </html>

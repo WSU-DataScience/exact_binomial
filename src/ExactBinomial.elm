@@ -467,32 +467,43 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-               div [] [ (inputGroup "Sample Size" "10" ChangeN "n = ")
-                                          , outputVal model.n
-                                          , inputGroup "probability" "0.5" ChangeP "p = "
-                                          , outputVal model.p
-                                          , br [] [] 
-                                          , ButtonGroup.radioButtonGroup []
-                                                  [ ButtonGroup.radioButton
-                                                          (model.tail == Left)
-                                                          [ Button.primary, Button.onClick <| ChangeTail Left ]
-                                                          [ Html.text "Left-tail" ]
-                                                  , ButtonGroup.radioButton
-                                                          (model.tail == Right)
-                                                          [ Button.primary, Button.onClick <| ChangeTail Right ]
-                                                          [ Html.text "Right-tail" ]
-                                                  , ButtonGroup.radioButton
-                                                          (model.tail == Two)
-                                                          [ Button.primary, Button.onClick <| ChangeTail Two ]
-                                                          [ Html.text "Two-tail" ]
-                                                  ]
-                                          , inputX model
-                                          , outputX model.xMsg
-                                          , br [] [] 
-                                          , br [] [] 
-                                          , h4 [] [Html.text "Probability"]
-                                          , displayXProb model
-                                          ]
+    div [] [ Grid.container []
+                [ Grid.row []
+                    [ Grid.col [ Col.md4, Col.sm4 ] [sidebar model]
+                    , Grid.col [ Col.md8, Col.sm8] [div [id "vis"][]]
+                    ]
+                ]
+            ]
+
+
+sidebar model =
+   div [] [ h3 [] [Html.text "Exact Binomial Probability"]
+          , (inputGroup "Sample Size" "10" ChangeN "n = ")
+          , outputVal model.n
+          , inputGroup "probability" "0.5" ChangeP "p = "
+          , outputVal model.p
+          , br [] [] 
+          , ButtonGroup.radioButtonGroup []
+                  [ ButtonGroup.radioButton
+                          (model.tail == Left)
+                          [ Button.primary, Button.onClick <| ChangeTail Left ]
+                          [ Html.text "Left-tail" ]
+                  , ButtonGroup.radioButton
+                          (model.tail == Right)
+                          [ Button.primary, Button.onClick <| ChangeTail Right ]
+                          [ Html.text "Right-tail" ]
+                  , ButtonGroup.radioButton
+                          (model.tail == Two)
+                          [ Button.primary, Button.onClick <| ChangeTail Two ]
+                          [ Html.text "Two-tail" ]
+                  ]
+          , inputX model
+          , outputX model.xMsg
+          , br [] [] 
+          , br [] [] 
+          , h4 [] [Html.text "Probability"]
+          , displayXProb model
+          ]
 
 
 inputGroup id default onchange intext =

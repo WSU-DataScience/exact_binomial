@@ -22722,109 +22722,113 @@ var _bsouthga$elm_katex$ExactBinomial$ChangeP = function (a) {
 var _bsouthga$elm_katex$ExactBinomial$ChangeN = function (a) {
 	return {ctor: 'ChangeN', _0: a};
 };
-var _bsouthga$elm_katex$ExactBinomial$view = function (model) {
+var _bsouthga$elm_katex$ExactBinomial$sidebar = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'Sample Size', '10', _bsouthga$elm_katex$ExactBinomial$ChangeN, 'n = '),
+			_0: A2(
+				_elm_lang$html$Html$h3,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Exact Binomial Probability'),
+					_1: {ctor: '[]'}
+				}),
 			_1: {
 				ctor: '::',
-				_0: _bsouthga$elm_katex$ExactBinomial$outputVal(model.n),
+				_0: A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'Sample Size', '10', _bsouthga$elm_katex$ExactBinomial$ChangeN, 'n = '),
 				_1: {
 					ctor: '::',
-					_0: A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'probability', '0.5', _bsouthga$elm_katex$ExactBinomial$ChangeP, 'p = '),
+					_0: _bsouthga$elm_katex$ExactBinomial$outputVal(model.n),
 					_1: {
 						ctor: '::',
-						_0: _bsouthga$elm_katex$ExactBinomial$outputVal(model.p),
+						_0: A4(_bsouthga$elm_katex$ExactBinomial$inputGroup, 'probability', '0.5', _bsouthga$elm_katex$ExactBinomial$ChangeP, 'p = '),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$br,
-								{ctor: '[]'},
-								{ctor: '[]'}),
+							_0: _bsouthga$elm_katex$ExactBinomial$outputVal(model.p),
 							_1: {
 								ctor: '::',
 								_0: A2(
-									_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
+									_elm_lang$html$Html$br,
 									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: A3(
-											_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-											_elm_lang$core$Native_Utils.eq(model.tail, _bsouthga$elm_katex$ExactBinomial$Left),
-											{
-												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
-												_1: {
-													ctor: '::',
-													_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
-														_bsouthga$elm_katex$ExactBinomial$ChangeTail(_bsouthga$elm_katex$ExactBinomial$Left)),
-													_1: {ctor: '[]'}
-												}
-											},
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('Left-tail'),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
+										{ctor: '[]'},
+										{
 											ctor: '::',
 											_0: A3(
 												_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-												_elm_lang$core$Native_Utils.eq(model.tail, _bsouthga$elm_katex$ExactBinomial$Right),
+												_elm_lang$core$Native_Utils.eq(model.tail, _bsouthga$elm_katex$ExactBinomial$Left),
 												{
 													ctor: '::',
 													_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
 													_1: {
 														ctor: '::',
 														_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
-															_bsouthga$elm_katex$ExactBinomial$ChangeTail(_bsouthga$elm_katex$ExactBinomial$Right)),
+															_bsouthga$elm_katex$ExactBinomial$ChangeTail(_bsouthga$elm_katex$ExactBinomial$Left)),
 														_1: {ctor: '[]'}
 													}
 												},
 												{
 													ctor: '::',
-													_0: _elm_lang$html$Html$text('Right-tail'),
+													_0: _elm_lang$html$Html$text('Left-tail'),
 													_1: {ctor: '[]'}
 												}),
 											_1: {
 												ctor: '::',
 												_0: A3(
 													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
-													_elm_lang$core$Native_Utils.eq(model.tail, _bsouthga$elm_katex$ExactBinomial$Two),
+													_elm_lang$core$Native_Utils.eq(model.tail, _bsouthga$elm_katex$ExactBinomial$Right),
 													{
 														ctor: '::',
 														_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
 														_1: {
 															ctor: '::',
 															_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
-																_bsouthga$elm_katex$ExactBinomial$ChangeTail(_bsouthga$elm_katex$ExactBinomial$Two)),
+																_bsouthga$elm_katex$ExactBinomial$ChangeTail(_bsouthga$elm_katex$ExactBinomial$Right)),
 															_1: {ctor: '[]'}
 														}
 													},
 													{
 														ctor: '::',
-														_0: _elm_lang$html$Html$text('Two-tail'),
+														_0: _elm_lang$html$Html$text('Right-tail'),
 														_1: {ctor: '[]'}
 													}),
-												_1: {ctor: '[]'}
+												_1: {
+													ctor: '::',
+													_0: A3(
+														_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+														_elm_lang$core$Native_Utils.eq(model.tail, _bsouthga$elm_katex$ExactBinomial$Two),
+														{
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
+																	_bsouthga$elm_katex$ExactBinomial$ChangeTail(_bsouthga$elm_katex$ExactBinomial$Two)),
+																_1: {ctor: '[]'}
+															}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('Two-tail'),
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}
 											}
-										}
-									}),
-								_1: {
-									ctor: '::',
-									_0: _bsouthga$elm_katex$ExactBinomial$inputX(model),
+										}),
 									_1: {
 										ctor: '::',
-										_0: _bsouthga$elm_katex$ExactBinomial$outputX(model.xMsg),
+										_0: _bsouthga$elm_katex$ExactBinomial$inputX(model),
 										_1: {
 											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$br,
-												{ctor: '[]'},
-												{ctor: '[]'}),
+											_0: _bsouthga$elm_katex$ExactBinomial$outputX(model.xMsg),
 											_1: {
 												ctor: '::',
 												_0: A2(
@@ -22834,17 +22838,24 @@ var _bsouthga$elm_katex$ExactBinomial$view = function (model) {
 												_1: {
 													ctor: '::',
 													_0: A2(
-														_elm_lang$html$Html$h4,
+														_elm_lang$html$Html$br,
 														{ctor: '[]'},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('Probability'),
-															_1: {ctor: '[]'}
-														}),
+														{ctor: '[]'}),
 													_1: {
 														ctor: '::',
-														_0: _bsouthga$elm_katex$ExactBinomial$displayXProb(model),
-														_1: {ctor: '[]'}
+														_0: A2(
+															_elm_lang$html$Html$h4,
+															{ctor: '[]'},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('Probability'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: _bsouthga$elm_katex$ExactBinomial$displayXProb(model),
+															_1: {ctor: '[]'}
+														}
 													}
 												}
 											}
@@ -22856,6 +22867,67 @@ var _bsouthga$elm_katex$ExactBinomial$view = function (model) {
 					}
 				}
 			}
+		});
+};
+var _bsouthga$elm_katex$ExactBinomial$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_rundis$elm_bootstrap$Bootstrap_Grid$container,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(
+						_rundis$elm_bootstrap$Bootstrap_Grid$row,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: A2(
+								_rundis$elm_bootstrap$Bootstrap_Grid$col,
+								{
+									ctor: '::',
+									_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$sm4,
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _bsouthga$elm_katex$ExactBinomial$sidebar(model),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_rundis$elm_bootstrap$Bootstrap_Grid$col,
+									{
+										ctor: '::',
+										_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$md8,
+										_1: {
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$sm8,
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$id('vis'),
+												_1: {ctor: '[]'}
+											},
+											{ctor: '[]'}),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
 		});
 };
 var _bsouthga$elm_katex$ExactBinomial$main = _elm_lang$html$Html$program(
